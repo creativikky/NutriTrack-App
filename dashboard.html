@@ -1,11 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>NutriTrack Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Nunito', sans-serif;
+      background: #f3fbf4;
+      padding: 1rem;
+    }
+    header {
+      text-align: center;
+      padding: 1rem;
+      background-color: #e0f2f1;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      margin: 0;
+      color: #2e7d32;
+    }
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .card {
+      flex: 1 1 30%;
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.5rem;
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+    }
+    .logout {
+      margin-top: 2rem;
+      display: block;
+      width: 100%;
+      max-width: 200px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0.7rem;
+      border: none;
+      background-color: #ef5350;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
 
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
@@ -22,13 +81,39 @@
 
 </head>
 <body>
-  <h2>Welcome to NutriTrack</h2>
-  <p id="userInfo">Loading user info...</p>
-  <button onclick="logout()">Logout</button>
+  <header>
+    <h1>Welcome to NutriTrack</h1>
+    <p>Tracking your health, one feed at a time 🌿</p>
+  </header>
 
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+  <div class="summary">
+    <div class="card">
+      <h3>Yesterday</h3>
+      <p>Energy: 1450 kcal</p>
+      <p>Protein: 52 g</p>
+    </div>
+    <div class="card">
+      <h3>Today</h3>
+      <p>Energy: 1750 kcal <span style="color:green;">(+20%)</span></p>
+      <p>Protein: 60 g <span style="color:green;">(+15%)</span></p>
+    </div>
+    <div class="card">
+      <h3>Today’s Feeds</h3>
+      <table>
+        <thead>
+          <tr><th>Feed #</th><th>Ingredients</th><th>Energy</th><th>Protein</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Milk, Banana</td><td>300</td><td>10</td></tr>
+          <tr><td>2</td><td>Khichdi Puree</td><td>450</td><td>15</td></tr>
+          <tr><td>3</td><td>Ensure, Milk</td><td>500</td><td>20</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <button class="logout" onclick="logout()">Logout</button>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
@@ -42,15 +127,13 @@
     const auth = firebase.auth();
 
     auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('userInfo').innerText = "Logged in as: " + user.email;
-      } else {
-        window.location.href = 'login.html';
+      if (!user) {
+        window.location.href = "index.html";
       }
     });
 
     function logout() {
-      auth.signOut().then(() => window.location.href = 'login.html');
+      auth.signOut().then(() => window.location.href = "index.html");
     }
   </script>
 </body>
