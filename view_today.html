@@ -15,18 +15,168 @@
   </style>
 </head>
 <body>
+<a href="dashboard.html" style="display:inline-block;margin-bottom:1rem;padding:0.5rem 1rem;background:#2e7d32;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">⬅️ Go to Dashboard</a>
   <h2>Today's Feeds</h2>
   <button onclick="exportTableToExcel('feedTable')">📤 Export to Excel</button>
 <table id="feedTable">
+<div style="margin-top: 1rem; font-size: 1.1rem;">
+  <strong>Total Energy: <span id="totalCalories">0</span> kcal</strong><br>
+  <strong>Total Protein: <span id="totalProtein">0</span> g</strong>
+</div>
+
     <thead>
       <tr><th>Feed #</th><th>Item</th><th>Quantity</th><th>Unit</th><th>Actions</th></tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js">
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js">
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
@@ -45,29 +195,22 @@
     auth.onAuthStateChanged(user => {
       if (!user) return location.href = "index.html";
 
+      const feedDocs = [];
       db.collection("feeds").where("uid", "==", user.uid).where("date", "==", todayStr).get().then(snapshot => {
-        const tbody = document.querySelector("#feedTable tbody");
         snapshot.forEach(doc => {
-          const data = doc.data();
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td><input type="number" value="${data.feed_number}" /></td>
-            <td><input type="text" value="${data.item}" /></td>
-            <td><input type="number" step="0.01" value="${data.quantity}" /></td>
-            <td><input type="text" value="${data.unit}" /></td>
-            <td>
-              <button class="save" onclick="saveEntry('${doc.id}', this)">Save</button>
-              <button class="delete" onclick="deleteEntry('${doc.id}', this)">Delete</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
+          feedDocs.push({ docId: doc.id, data: doc.data() });
         });
+        groupAndRenderFeeds(feedDocs);
+        const tbody = document.querySelector("#feedTable tbody");
+        
       });
+      
     });
 
     function saveEntry(id, btn) {
       const row = btn.closest("tr");
       const [feed_number, item, quantity, unit] = [...row.querySelectorAll("input")].map(input => input.value);
+      const feedDocs = [];
       db.collection("feeds").doc(id).update({
         feed_number: parseInt(feed_number),
         item: item.trim(),
@@ -78,19 +221,281 @@
 
     function deleteEntry(id, btn) {
       if (!confirm("Delete this feed item?")) return;
+      const feedDocs = [];
       db.collection("feeds").doc(id).delete().then(() => {
         btn.closest("tr").remove();
       });
     }
-  </script>
+  
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
 <script>
   function exportTableToExcel(tableId, filename = 'exported_data.xlsx') {
     const table = document.getElementById(tableId);
     const wb = XLSX.utils.table_to_book(table, { sheet: "Sheet1" });
     XLSX.writeFile(wb, filename);
   }
+
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
+</script>
+<script>
+  function exportTableToExcel(tableId, filename = 'exported_data.xlsx') {
+    const orig = document.getElementById(tableId);
+    const clone = orig.cloneNode(true);
+
+    // Replace inputs with their values
+    const inputs = clone.querySelectorAll("input");
+    inputs.forEach(input => {
+      const td = input.parentElement;
+      const text = document.createTextNode(input.value);
+      td.innerHTML = "";
+      td.appendChild(text);
+    });
+
+    const wb = XLSX.utils.table_to_book(clone, { sheet: "Sheet1" });
+    XLSX.writeFile(wb, filename);
+  }
+
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#feedTable tbody tr").forEach(row => {
+    const cal = parseFloat(row.cells[4]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[5]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+
+function groupAndRenderFeeds(feeds) {
+  const tbody = document.querySelector("#feedTable tbody");
+  tbody.innerHTML = "";
+
+  feeds.sort((a, b) => a.feed_number - b.feed_number);
+
+  let currentFeed = null;
+  feeds.forEach(({ docId, data }) => {
+    if (data.feed_number !== currentFeed) {
+      currentFeed = data.feed_number;
+      const sepRow = document.createElement("tr");
+      sepRow.innerHTML = `<td colspan="6" style="text-align:left;font-weight:bold;background:#e8f5e9;">Feed ${currentFeed}</td>`;
+      tbody.appendChild(sepRow);
+    }
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="number" value="${data.feed_number}" /></td>
+      <td><input type="text" value="${data.item}" /></td>
+      <td><input type="number" step="0.01" value="${data.quantity}" /></td>
+      <td><input type="text" value="${data.unit}" /></td>
+      <td><input type="number" step="0.01" value="${data.calories || 0}" /></td>
+      <td><input type="number" step="0.01" value="${data.protein || 0}" /></td>
+      <td>
+        <button class="save" onclick="saveEntry('${docId}', this)">Save</button>
+        <button class="delete" onclick="deleteEntry('${docId}', this)">Delete</button>
+      </td>
+    `;
+    tr.querySelectorAll("input").forEach(input => input.addEventListener("input", updateTotals));
+    tbody.appendChild(tr);
+  });
+  updateTotals();
+}
+
 </script>
 
 </body>

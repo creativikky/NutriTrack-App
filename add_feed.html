@@ -6,40 +6,178 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Nunito', sans-serif; background: #f3fbf4; padding: 2rem; }
-    .form { max-width: 600px; margin: auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input, button { width: 100%; margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
-    button { background: #66bb6a; color: white; font-weight: bold; cursor: pointer; }
-    h3 { margin-top: 2rem; }
+    .form { max-width: 800px; margin: auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button, select { padding: 0.6rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.5rem; text-align: center; border-bottom: 1px solid #ccc; }
+    button { cursor: pointer; }
+    .add-row-btn { background: #42a5f5; color: white; }
+    .submit-btn { background: #66bb6a; color: white; font-weight: bold; width: 100%; }
   </style>
 </head>
 <body>
   <div class="form">
-    <h2>Add a Feed (up to 4 ingredients)</h2>
+    <a href="dashboard.html" style="display:inline-block;margin-bottom:1rem;padding:0.5rem 1rem;background:#2e7d32;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">⬅️ Go to Dashboard</a>
+    <h2>Add Feed</h2>
     <input type="date" id="date" />
     <input type="number" id="feedNumber" placeholder="Feed Number" />
 
-    <h3>Ingredient 1</h3>
-    <input type="text" id="item1" placeholder="Item Name" />
-    <input type="text" id="qty1" placeholder="Quantity (e.g. 200ml, 2 walnuts)" />
+    <table id="ingredientTable">
+      <thead>
+        <tr><th>Item</th><th>Quantity</th><th>Calories</th><th>Protein</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="ingredientBody">
+        <!-- rows added dynamically -->
+      </tbody>
+    </table>
+    
+<div style="margin-top: 1rem; font-size: 1.1rem;">
+  <strong>Total Energy: <span id="totalCalories">0</span> kcal</strong><br>
+  <strong>Total Protein: <span id="totalProtein">0</span> g</strong>
+</div>
 
-    <h3>Ingredient 2</h3>
-    <input type="text" id="item2" placeholder="Item Name" />
-    <input type="text" id="qty2" placeholder="Quantity" />
-
-    <h3>Ingredient 3</h3>
-    <input type="text" id="item3" placeholder="Item Name" />
-    <input type="text" id="qty3" placeholder="Quantity" />
-
-    <h3>Ingredient 4</h3>
-    <input type="text" id="item4" placeholder="Item Name" />
-    <input type="text" id="qty4" placeholder="Quantity" />
-
-    <button onclick="addFeed()">Submit Feed</button>
+<button type="button" class="add-row-btn" onclick="addRow()">➕ Add Ingredient</button>
+    <button class="submit-btn" onclick="submitFeed()">✅ Submit Feed</button>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
+    const ingredientsMap = {};
+    auth.onAuthStateChanged(user => {
+      if (!user) return alert("Not logged in");
+      db.collection("ingredients").where("uid", "==", user.uid).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const key = data.item.replace(/\s+/g, '').toLowerCase();
+          ingredientsMap[key] = data.unit;
+        });
+
+        // After loading ingredients, set listeners on item inputs
+        const table = document.getElementById("ingredientBody");
+        const observer = new MutationObserver(() => {
+          table.querySelectorAll("tr").forEach(row => {
+            const itemInput = row.cells[0]?.querySelector("input");
+            const unitSelect = row.cells[1]?.querySelector("select");
+            if (itemInput && unitSelect && !itemInput.dataset.listenerAttached) {
+              itemInput.addEventListener("input", () => {
+                const val = itemInput.value.replace(/\s+/g, '').toLowerCase();
+                if (ingredientsMap[val]) {
+                  unitSelect.value = ingredientsMap[val];
+                }
+              });
+              itemInput.dataset.listenerAttached = "true";    [qtyInput, row.cells[2].querySelector("input"), row.cells[3].querySelector("input")].forEach(input => {      if (input) input.addEventListener("input", updateTotals);    });
+            }
+          });
+        });
+        observer.observe(table, { childList: true, subtree: true });
+      });
+    });
+
+
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#ingredientBody tr").forEach(row => {
+    const cal = parseFloat(row.cells[2]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[3]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js">
+    const ingredientsMap = {};
+    auth.onAuthStateChanged(user => {
+      if (!user) return alert("Not logged in");
+      db.collection("ingredients").where("uid", "==", user.uid).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const key = data.item.replace(/\s+/g, '').toLowerCase();
+          ingredientsMap[key] = data.unit;
+        });
+
+        // After loading ingredients, set listeners on item inputs
+        const table = document.getElementById("ingredientBody");
+        const observer = new MutationObserver(() => {
+          table.querySelectorAll("tr").forEach(row => {
+            const itemInput = row.cells[0]?.querySelector("input");
+            const unitSelect = row.cells[1]?.querySelector("select");
+            if (itemInput && unitSelect && !itemInput.dataset.listenerAttached) {
+              itemInput.addEventListener("input", () => {
+                const val = itemInput.value.replace(/\s+/g, '').toLowerCase();
+                if (ingredientsMap[val]) {
+                  unitSelect.value = ingredientsMap[val];
+                }
+              });
+              itemInput.dataset.listenerAttached = "true";    [qtyInput, row.cells[2].querySelector("input"), row.cells[3].querySelector("input")].forEach(input => {      if (input) input.addEventListener("input", updateTotals);    });
+            }
+          });
+        });
+        observer.observe(table, { childList: true, subtree: true });
+      });
+    });
+
+
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#ingredientBody tr").forEach(row => {
+    const cal = parseFloat(row.cells[2]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[3]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js">
+    const ingredientsMap = {};
+    auth.onAuthStateChanged(user => {
+      if (!user) return alert("Not logged in");
+      db.collection("ingredients").where("uid", "==", user.uid).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const key = data.item.replace(/\s+/g, '').toLowerCase();
+          ingredientsMap[key] = data.unit;
+        });
+
+        // After loading ingredients, set listeners on item inputs
+        const table = document.getElementById("ingredientBody");
+        const observer = new MutationObserver(() => {
+          table.querySelectorAll("tr").forEach(row => {
+            const itemInput = row.cells[0]?.querySelector("input");
+            const unitSelect = row.cells[1]?.querySelector("select");
+            if (itemInput && unitSelect && !itemInput.dataset.listenerAttached) {
+              itemInput.addEventListener("input", () => {
+                const val = itemInput.value.replace(/\s+/g, '').toLowerCase();
+                if (ingredientsMap[val]) {
+                  unitSelect.value = ingredientsMap[val];
+                }
+              });
+              itemInput.dataset.listenerAttached = "true";    [qtyInput, row.cells[2].querySelector("input"), row.cells[3].querySelector("input")].forEach(input => {      if (input) input.addEventListener("input", updateTotals);    });
+            }
+          });
+        });
+        observer.observe(table, { childList: true, subtree: true });
+      });
+    });
+
+
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#ingredientBody tr").forEach(row => {
+    const cal = parseFloat(row.cells[2]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[3]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+</script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
@@ -52,7 +190,28 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+
     document.getElementById("date").valueAsDate = new Date();
+
+    function addRow() {
+      const tbody = document.getElementById("ingredientBody");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="text" placeholder="Item Name" /></td>
+        <td><input type="text" placeholder="Quantity" style="width:60%" />
+<select>
+  <option value="gm">gm</option>
+  <option value="ml">ml</option>
+  <option value="scoop">scoop</option>
+  <option value="tsp">tsp</option>
+  <option value="tbsp">tbsp</option>
+  <option value="unitless">unitless</option>
+</select>
+</td>
+        <td><button type="button" onclick="this.closest('tr').remove()">🗑️</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
 
     function parseQuantityInput(input) {
       const match = input.trim().match(/^([\d.]+)\s*([a-zA-Z]*)$/);
@@ -62,30 +221,39 @@
       };
     }
 
-    function addFeed() {
+    function submitFeed() {
       const user = auth.currentUser;
       if (!user) return alert("Not logged in");
 
       const date = document.getElementById("date").value;
       const feedNumber = parseInt(document.getElementById("feedNumber").value);
+      const rows = document.querySelectorAll("#ingredientBody tr");
 
       const entries = [];
-      for (let i = 1; i <= 4; i++) {
-        const item = document.getElementById("item" + i).value.trim();
-        const qty = document.getElementById("qty" + i).value.trim();
+      rows.forEach(row => {
+        const item = row.cells[0].querySelector("input").value.trim();
+        const qtyInput = row.cells[1].querySelector("input");
+        const unitSelect = row.cells[1].querySelector("select");
+        const qty = qtyInput.value.trim();
+        const selectedUnit = unitSelect.value;
         if (item && qty) {
           const parsed = parseQuantityInput(qty);
-          const cleanUnit = parsed.unit === "" ? "gm" : (["gm","ml","scoop","tsp","tbsp"].includes(parsed.unit) ? parsed.unit : "unitless");
+          const cleanUnit = selectedUnit;
           entries.push({
             uid: user.uid,
-            date, feed_number: feedNumber,
-            item, quantity: parsed.quantity, unit: cleanUnit
+            date,
+            feed_number: feedNumber,
+            item,
+            quantity: parsed.quantity,
+            unit: cleanUnit
           });
         }
+      });
+
+      if (!date || isNaN(feedNumber) || entries.length === 0) {
+        return alert("Please complete all required fields.");
       }
 
-      if (entries.length === 0) return alert("Please enter at least one valid ingredient.");
-      
       const batch = db.batch();
       entries.forEach(entry => {
         const ref = db.collection("feeds").doc();
@@ -93,10 +261,59 @@
       });
 
       batch.commit().then(() => {
-        alert("Feed added successfully!");
+        alert("Feed saved successfully!");
         location.reload();
-      }).catch(err => alert("Error: " + err.message));
+      });
     }
-  </script>
+
+    // Add default 4 rows
+    for (let i = 0; i < 4; i++) addRow();
+updateTotals();
+  
+    const ingredientsMap = {};
+    auth.onAuthStateChanged(user => {
+      if (!user) return alert("Not logged in");
+      db.collection("ingredients").where("uid", "==", user.uid).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const key = data.item.replace(/\s+/g, '').toLowerCase();
+          ingredientsMap[key] = data.unit;
+        });
+
+        // After loading ingredients, set listeners on item inputs
+        const table = document.getElementById("ingredientBody");
+        const observer = new MutationObserver(() => {
+          table.querySelectorAll("tr").forEach(row => {
+            const itemInput = row.cells[0]?.querySelector("input");
+            const unitSelect = row.cells[1]?.querySelector("select");
+            if (itemInput && unitSelect && !itemInput.dataset.listenerAttached) {
+              itemInput.addEventListener("input", () => {
+                const val = itemInput.value.replace(/\s+/g, '').toLowerCase();
+                if (ingredientsMap[val]) {
+                  unitSelect.value = ingredientsMap[val];
+                }
+              });
+              itemInput.dataset.listenerAttached = "true";    [qtyInput, row.cells[2].querySelector("input"), row.cells[3].querySelector("input")].forEach(input => {      if (input) input.addEventListener("input", updateTotals);    });
+            }
+          });
+        });
+        observer.observe(table, { childList: true, subtree: true });
+      });
+    });
+
+
+function updateTotals() {
+  let totalCalories = 0, totalProtein = 0;
+  document.querySelectorAll("#ingredientBody tr").forEach(row => {
+    const cal = parseFloat(row.cells[2]?.querySelector("input")?.value) || 0;
+    const pro = parseFloat(row.cells[3]?.querySelector("input")?.value) || 0;
+    totalCalories += cal;
+    totalProtein += pro;
+  });
+  document.getElementById("totalCalories").textContent = totalCalories.toFixed(2);
+  document.getElementById("totalProtein").textContent = totalProtein.toFixed(2);
+}
+
+</script>
 </body>
 </html>
