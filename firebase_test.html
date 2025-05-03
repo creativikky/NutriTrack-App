@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Firebase Auth Test (Compat)</title>
+  <title>Firebase Auth  (Compat)</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -20,9 +20,30 @@
   const db = firebase.firestore();
 </script>
 
+
+<script>
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    showError("Not logged in. Redirecting to login...");
+    setTimeout(() => location.href = "index.html", 2000);
+    return;
+  }
+});
+</script>
+
 </head>
 <body>
-  <h2>Firebase Auth Test (Compat)</h2>
+
+<div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;"></div>
+<script>
+function showError(message) {
+  const box = document.getElementById("errorBox");
+  box.textContent = message;
+  box.style.display = "block";
+}
+</script>
+
+  <h2>Firebase Auth  (Compat)</h2>
   <p id="status">Loading Firebase...</p>
 
   <!-- Firebase Compat SDKs -->

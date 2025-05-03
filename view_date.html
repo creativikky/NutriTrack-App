@@ -14,12 +14,33 @@
     .save { background-color: #66bb6a; color: white; }
     .delete { background-color: #ef5350; color: white; }
   </style>
+
+<script>
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    showError("Not logged in. Redirecting to login...");
+    setTimeout(() => location.href = "index.html", 2000);
+    return;
+  }
+});
+</script>
+
 </head>
 <body>
+
+<div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;"></div>
+<script>
+function showError(message) {
+  const box = document.getElementById("errorBox");
+  box.textContent = message;
+  box.style.display = "block";
+}
+</script>
+
 <a href="dashboard.html" style="display:inline-block;margin-bottom:1rem;padding:0.5rem 1rem;background:#2e7d32;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">⬅️ Go to Dashboard</a>
   <h2>Feeds by Date</h2>
   <input type="date" id="dateInput" />
-  <input type="text" id="searchInput" placeholder="Search..." oninput="filterTable()" />
+  <input type="text" id="searchInput" ="Search..." oninput="filterTable()" />
   <button onclick="exportTableToExcel('feedTable')">📤 Export to Excel</button>
 <table id="feedTable">
 <div style="margin-top: 1rem; font-size: 1.1rem;">

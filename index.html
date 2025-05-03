@@ -81,13 +81,34 @@
   const db = firebase.firestore();
 </script>
 
+
+<script>
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    showError("Not logged in. Redirecting to login...");
+    setTimeout(() => location.href = "index.html", 2000);
+    return;
+  }
+});
+</script>
+
 </head>
 <body>
+
+<div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;"></div>
+<script>
+function showError(message) {
+  const box = document.getElementById("errorBox");
+  box.textContent = message;
+  box.style.display = "block";
+}
+</script>
+
   <div class="login-container">
     <h1>NutriTrack</h1>
     <div class="brand">by CreativikkyLabs</div>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
+    <input type="email" id="email" ="Email" />
+    <input type="password" id="password" ="Password" />
     <button id="loginBtn">Login</button>
     <button id="signupBtn">Sign Up</button>
     <button id="googleBtn">Login with Google</button>

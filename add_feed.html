@@ -14,13 +14,34 @@
     .add-row-btn { background: #42a5f5; color: white; }
     .submit-btn { background: #66bb6a; color: white; font-weight: bold; width: 100%; }
   </style>
+
+<script>
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    showError("Not logged in. Redirecting to login...");
+    setTimeout(() => location.href = "index.html", 2000);
+    return;
+  }
+});
+</script>
+
 </head>
 <body>
+
+<div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;"></div>
+<script>
+function showError(message) {
+  const box = document.getElementById("errorBox");
+  box.textContent = message;
+  box.style.display = "block";
+}
+</script>
+
   <div class="form">
     <a href="dashboard.html" style="display:inline-block;margin-bottom:1rem;padding:0.5rem 1rem;background:#2e7d32;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;">⬅️ Go to Dashboard</a>
     <h2>Add Feed</h2>
     <input type="date" id="date" />
-    <input type="number" id="feedNumber" placeholder="Feed Number" />
+    <input type="number" id="feedNumber" ="Feed Number" />
 
     <table id="ingredientTable">
       <thead>
@@ -197,8 +218,8 @@ function updateTotals() {
       const tbody = document.getElementById("ingredientBody");
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><input type="text" placeholder="Item Name" /></td>
-        <td><input type="text" placeholder="Quantity" style="width:60%" />
+        <td><input type="text" ="Item Name" /></td>
+        <td><input type="text" ="Quantity" style="width:60%" />
 <select>
   <option value="gm">gm</option>
   <option value="ml">ml</option>
