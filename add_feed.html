@@ -1,18 +1,76 @@
-<!-- Aesthetic Add Feed Page -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Feed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Nunito', sans-serif; background: #f3fbf4; padding: 2rem; }
+    .form { max-width: 400px; margin: auto; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button { display: block; width: 100%; margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; }
+    button { background: #66bb6a; color: white; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="form">
+    <h2>Add Feed</h2>
+    <input type="date" id="date" />
+    <input type="number" id="feedNumber" placeholder="Feed Number" />
+    <input type="text" id="item" placeholder="Item (e.g. Milk, Egg)" />
+    <input type="text" id="quantityInput" placeholder="Quantity (e.g. 200, 150ml, 2 walnuts)" />
+    <button onclick="addFeed()">Submit Feed</button>
+  </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
-    authDomain: "nutritrack-12b26.firebaseapp.com",
-    projectId: "nutritrack-12b26",
-    storageBucket: "nutritrack-12b26.firebasestorage.app",
-    messagingSenderId: "1034235028376",
-    appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
+      authDomain: "nutritrack-12b26.firebaseapp.com",
+      projectId: "nutritrack-12b26",
+      storageBucket: "nutritrack-12b26.firebasestorage.app",
+      messagingSenderId: "1034235028376",
+      appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    document.getElementById("date").valueAsDate = new Date();
+
+    function parseQuantityInput(input) {
+      const match = input.trim().match(/^([\d.]+)\s*([a-zA-Z]*)$/);
+      return {
+        quantity: parseFloat(match[1]),
+        unit: match[2] ? match[2].toLowerCase() : "gm"
+      };
+    }
+
+    function addFeed() {
+      const user = auth.currentUser;
+      if (!user) return alert("Not logged in");
+
+      const date = document.getElementById("date").value;
+      const feedNumber = parseInt(document.getElementById("feedNumber").value);
+      const item = document.getElementById("item").value.trim();
+      const { quantity, unit } = parseQuantityInput(document.getElementById("quantityInput").value);
+
+      if (!date || isNaN(feedNumber) || !item || isNaN(quantity)) {
+        return alert("Please fill all fields correctly.");
+      }
+
+      const cleanUnit = unit === "" ? "gm" : (["gm","ml","scoop","tsp","tbsp"].includes(unit) ? unit : "unitless");
+
+      db.collection("feeds").add({
+        uid: user.uid,
+        date, feed_number: feedNumber,
+        item, quantity, unit: cleanUnit
+      }).then(() => {
+        alert("Feed added!");
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>

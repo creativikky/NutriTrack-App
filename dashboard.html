@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>NutriTrack Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       margin: 0;
@@ -22,18 +23,28 @@
       margin: 0;
       color: #2e7d32;
     }
-    .summary {
+    .dashboard {
       display: flex;
-      justify-content: space-between;
       flex-wrap: wrap;
       gap: 1rem;
     }
-    .card {
+    .left, .middle, .right {
       flex: 1 1 30%;
       background: white;
       padding: 1rem;
       border-radius: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    canvas {
+      max-width: 100%;
+    }
+    .protein-badge {
+      display: inline-block;
+      background-color: #d1f5d3;
+      border-radius: 20px;
+      padding: 0.2rem 0.6rem;
+      margin: 0.2rem;
+      font-size: 0.8em;
     }
     table {
       width: 100%;
@@ -44,6 +55,28 @@
       padding: 0.5rem;
       text-align: center;
       border-bottom: 1px solid #ccc;
+    }
+    .buttons {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .group-title {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    .btn {
+      padding: 0.7rem;
+      border: none;
+      background-color: #66bb6a;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
     }
     .logout {
       margin-top: 2rem;
@@ -61,24 +94,6 @@
       cursor: pointer;
     }
   </style>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
-    authDomain: "nutritrack-12b26.firebaseapp.com",
-    projectId: "nutritrack-12b26",
-    storageBucket: "nutritrack-12b26.firebasestorage.app",
-    messagingSenderId: "1034235028376",
-    appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-
 </head>
 <body>
   <header>
@@ -86,18 +101,18 @@
     <p>Tracking your health, one feed at a time 🌿</p>
   </header>
 
-  <div class="summary">
-    <div class="card">
-      <h3>Yesterday</h3>
-      <p>Energy: 1450 kcal</p>
-      <p>Protein: 52 g</p>
+  <div class="dashboard">
+    <div class="left">
+      <h3>7-Day Calorie Chart</h3>
+      <canvas id="calorieChart" height="180"></canvas>
+      <div id="proteinBadges"></div>
     </div>
-    <div class="card">
+    <div class="middle">
       <h3>Today</h3>
       <p>Energy: 1750 kcal <span style="color:green;">(+20%)</span></p>
       <p>Protein: 60 g <span style="color:green;">(+15%)</span></p>
     </div>
-    <div class="card">
+    <div class="right">
       <h3>Today’s Feeds</h3>
       <table>
         <thead>
@@ -112,8 +127,24 @@
     </div>
   </div>
 
+  <div class="buttons">
+    <div class="group-title">Feed Actions</div>
+    <a class="btn" href="add_feed.html">➕ Add Feed</a>
+    <a class="btn" href="view_today.html">📅 View Today’s Feed</a>
+    <a class="btn" href="view_date.html">🔍 View by Date</a>
+    <a class="btn" href="export_feed.html">📤 Export Feed</a>
+
+    <div class="group-title">Ingredient Actions</div>
+    <a class="btn" href="add_item.html">➕ Add Ingredients</a>
+    <a class="btn" href="add_item.html">🧾 View/Edit Ingredients</a>
+  </div>
+
   <button class="logout" onclick="logout()">Logout</button>
 
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
@@ -135,6 +166,34 @@
     function logout() {
       auth.signOut().then(() => window.location.href = "index.html");
     }
+
+    // Render Chart with Dummy Data
+    const ctx = document.getElementById('calorieChart').getContext('2d');
+    const calorieChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Calories (kcal)',
+          data: [1500, 1600, 1700, 1550, 1800, 1750, 1650],
+          backgroundColor: '#66bb6a'
+        }]
+      },
+      options: {
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    const proteinValues = [50, 55, 60, 52, 65, 60, 58];
+    const badgeContainer = document.getElementById('proteinBadges');
+    proteinValues.forEach(p => {
+      const badge = document.createElement('div');
+      badge.className = 'protein-badge';
+      badge.textContent = p + "g protein";
+      badgeContainer.appendChild(badge);
+    });
   </script>
 </body>
 </html>
