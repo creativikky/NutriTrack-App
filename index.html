@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | NutriTrack</title>
+  <title>NutriTrack Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -63,24 +63,6 @@
       color: #444;
     }
   </style>
-
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
-    authDomain: "nutritrack-12b26.firebaseapp.com",
-    projectId: "nutritrack-12b26",
-    storageBucket: "nutritrack-12b26.firebasestorage.app",
-    messagingSenderId: "1034235028376",
-    appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-
 </head>
 <body>
   <div class="login-container">
@@ -88,49 +70,51 @@
     <div class="brand">by CreativikkyLabs</div>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="googleLogin()">Login with Google</button>
+    <button id="loginBtn">Login</button>
+    <button id="signupBtn">Sign Up</button>
+    <button id="googleBtn">Login with Google</button>
     <div class="footer">Stay strong. Stay healthy. 🌱</div>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
-      authDomain: "nutritrack-12b26.firebaseapp.com",
-      projectId: "nutritrack-12b26",
-      storageBucket: "nutritrack-12b26.firebasestorage.app",
-      messagingSenderId: "1034235028376",
-      appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    document.addEventListener('DOMContentLoaded', function () {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
+        authDomain: "nutritrack-12b26.firebaseapp.com",
+        projectId: "nutritrack-12b26",
+        storageBucket: "nutritrack-12b26.firebasestorage.app",
+        messagingSenderId: "1034235028376",
+        appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
 
-    function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => location.href = 'index.html')
-        .catch(err => alert(err.message));
-    }
+      document.getElementById("loginBtn").addEventListener("click", () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => location.href = 'dashboard.html')
+          .catch(err => alert("Login failed: " + err.message));
+      });
 
-    function signup() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => location.href = 'index.html')
-        .catch(err => alert(err.message));
-    }
+      document.getElementById("signupBtn").addEventListener("click", () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        auth.createUserWithEmailAndPassword(email, password)
+          .then(() => location.href = 'dashboard.html')
+          .catch(err => alert("Sign Up failed: " + err.message));
+      });
 
-    function googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then(() => location.href = 'index.html')
-        .catch(err => alert(err.message));
-    }
+      document.getElementById("googleBtn").addEventListener("click", () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+          .then(() => location.href = 'dashboard.html')
+          .catch(err => alert("Google login failed: " + err.message));
+      });
+    });
   </script>
 </body>
 </html>
