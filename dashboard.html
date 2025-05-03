@@ -94,8 +94,166 @@
       cursor: pointer;
     }
   </style>
+
+<style>
+.progress-ring {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+.progress-ring svg {
+  transform: rotate(-90deg);
+}
+.progress-ring circle {
+  fill: none;
+  stroke-width: 10;
+}
+.progress-ring .bg {
+  stroke: #eee;
+}
+.progress-ring .progress {
+  stroke: #66bb6a;
+  stroke-linecap: round;
+}
+.progress-ring .center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  font-weight: bold;
+}
+</style>
+
+<div id="dashboardGoals" style="display:flex;justify-content:center;gap:3rem;margin-top:2rem;">
+  <div class="stat-card">
+    <div class="progress-ring">
+      <svg width="100" height="100">
+        <circle class="bg" cx="50" cy="50" r="45" />
+        <circle class="progress" id="energyProgress" cx="50" cy="50" r="45" />
+      </svg>
+      <div class="center" id="energyPercent">0%</div>
+    </div>
+    <div class="stat-label">Energy Goal</div>
+  </div>
+  <div class="stat-card">
+    <div class="progress-ring">
+      <svg width="100" height="100">
+        <circle class="bg" cx="50" cy="50" r="45" />
+        <circle class="progress" id="proteinProgress" cx="50" cy="50" r="45" />
+      </svg>
+      <div class="center" id="proteinPercent">0%</div>
+    </div>
+    <div class="stat-label">Protein Goal</div>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:1rem;">
+<a href="settings.html" style="margin-bottom:1rem;display:inline-block;background:#9c27b0;color:#fff;padding:0.5rem 1rem;border-radius:8px;text-decoration:none;">⚙️ Settings</a><br>
+  <button onclick="setGoals()" style="padding:0.5rem 1rem;background:#42a5f5;color:#fff;border:none;border-radius:8px;">⚙️ Set Daily Goals</button>
+</div>
+
 </head>
 <body>
+
+<style>
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #e8f5e9;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin: 0.5rem;
+  font-size: 1.2rem;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2e7d32;
+}
+.stat-label {
+  font-size: 1rem;
+  color: #555;
+}
+#dashboardStats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+</style>
+
+<style>
+.progress-ring {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+.progress-ring svg {
+  transform: rotate(-90deg);
+}
+.progress-ring circle {
+  fill: none;
+  stroke-width: 10;
+}
+.progress-ring .bg {
+  stroke: #eee;
+}
+.progress-ring .progress {
+  stroke: #66bb6a;
+  stroke-linecap: round;
+}
+.progress-ring .center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1rem;
+  font-weight: bold;
+}
+</style>
+
+<div id="dashboardGoals" style="display:flex;justify-content:center;gap:3rem;margin-top:2rem;">
+  <div class="stat-card">
+    <div class="progress-ring">
+      <svg width="100" height="100">
+        <circle class="bg" cx="50" cy="50" r="45" />
+        <circle class="progress" id="energyProgress" cx="50" cy="50" r="45" />
+      </svg>
+      <div class="center" id="energyPercent">0%</div>
+    </div>
+    <div class="stat-label">Energy Goal</div>
+  </div>
+  <div class="stat-card">
+    <div class="progress-ring">
+      <svg width="100" height="100">
+        <circle class="bg" cx="50" cy="50" r="45" />
+        <circle class="progress" id="proteinProgress" cx="50" cy="50" r="45" />
+      </svg>
+      <div class="center" id="proteinPercent">0%</div>
+    </div>
+    <div class="stat-label">Protein Goal</div>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:1rem;">
+<a href="settings.html" style="margin-bottom:1rem;display:inline-block;background:#9c27b0;color:#fff;padding:0.5rem 1rem;border-radius:8px;text-decoration:none;">⚙️ Settings</a><br>
+  <button onclick="setGoals()" style="padding:0.5rem 1rem;background:#42a5f5;color:#fff;border:none;border-radius:8px;">⚙️ Set Daily Goals</button>
+</div>
+
+
+<div id="dashboardStats">
+  <div class="stat-card">
+    <div class="stat-value" id="todayEnergy">0 kcal</div>
+    <div class="stat-label">Today's Energy</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="todayProtein">0 g</div>
+    <div class="stat-label">Today's Protein</div>
+  </div>
+</div>
+
   <header>
     <h1>Welcome to NutriTrack</h1>
     <p>Tracking your health, one feed at a time 🌿</p>
@@ -148,55 +306,70 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
-      authDomain: "nutritrack-12b26.firebaseapp.com",
-      projectId: "nutritrack-12b26",
-      storageBucket: "nutritrack-12b26.firebasestorage.app",
-      messagingSenderId: "1034235028376",
-      appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  
+<script>
+let energyGoal = 2000;
+let proteinGoal = 65;
 
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = "index.html";
+function updateRing(id, percent) {
+  const circle = document.getElementById(id);
+  const radius = circle.r.baseVal.value;
+  const circumference = 2 * Math.PI * radius;
+  circle.style.strokeDasharray = `${circumference}`;
+  circle.style.strokeDashoffset = `${circumference * (1 - percent / 100)}`;
+}
+
+function setGoals() {
+  const e = prompt("Set daily energy goal (kcal):", energyGoal);
+  const p = prompt("Set daily protein goal (g):", proteinGoal);
+  if (e && p && firebase.auth().currentUser) {
+    energyGoal = parseInt(e);
+    proteinGoal = parseInt(p);
+    const uid = firebase.auth().currentUser.uid;
+    db.collection("goals").doc(uid).set({
+      energy: energyGoal,
+      protein: proteinGoal
+    }).then(() => {
+      updateProgressRings();
+    });
+  }
+}
+
+function updateProgressRings() {
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) return;
+    const uid = user.uid;
+    db.collection("goals").doc(uid).get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        energyGoal = data.energy || 2000;
+        proteinGoal = data.protein || 65;
       }
+      const todayStr = new Date().toISOString().split("T")[0];
+      let totalEnergy = 0, totalProtein = 0;
+      db.collection("feeds").where("uid", "==", uid).where("date", "==", todayStr).get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            totalEnergy += parseFloat(d.calories || 0);
+            totalProtein += parseFloat(d.protein || 0);
+          });
+          const energyPct = Math.min((totalEnergy / energyGoal) * 100, 100);
+          const proteinPct = Math.min((totalProtein / proteinGoal) * 100, 100);
+          updateRing("energyProgress", energyPct);
+          updateRing("proteinProgress", proteinPct);
+          document.getElementById("energyPercent").textContent = Math.round(energyPct) + "%";
+          document.getElementById("proteinPercent").textContent = Math.round(proteinPct) + "%";
+          document.getElementById("todayEnergy").textContent = totalEnergy.toFixed(1) + " kcal";
+          document.getElementById("todayProtein").textContent = totalProtein.toFixed(1) + " g";
+        });
     });
+  });
+}
 
-    function logout() {
-      auth.signOut().then(() => window.location.href = "index.html");
-    }
+updateProgressRings();
+</script>
 
-    // Render Chart with Dummy Data
-    const ctx = document.getElementById('calorieChart').getContext('2d');
-    const calorieChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Calories (kcal)',
-          data: [1500, 1600, 1700, 1550, 1800, 1750, 1650],
-          backgroundColor: '#66bb6a'
-        }]
-      },
-      options: {
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
 
-    const proteinValues = [50, 55, 60, 52, 65, 60, 58];
-    const badgeContainer = document.getElementById('proteinBadges');
-    proteinValues.forEach(p => {
-      const badge = document.createElement('div');
-      badge.className = 'protein-badge';
-      badge.textContent = p + "g";
-      badgeContainer.appendChild(badge);
-    });
-  </script>
 </body>
 </html>
