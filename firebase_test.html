@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Firebase Auth Test</title>
+  <meta charset="UTF-8">
+  <title>Firebase Auth Test (Fixed)</title>
 </head>
 <body>
-  <h2>Firebase Auth Test Page</h2>
-  <p id="status">Checking Firebase...</p>
+  <h2>Firebase Auth Test (Fixed)</h2>
+  <p id="status">Loading...</p>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs via script tags -->
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
+
   <script>
+    // Initialize Firebase using script-compatible config
     const firebaseConfig = {
       apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
       authDomain: "nutritrack-12b26.firebaseapp.com",
@@ -23,19 +26,19 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    document.getElementById("status").innerText = "Firebase initialized... checking login state";
+    document.getElementById("status").textContent = "Firebase initialized... checking auth state";
 
     auth.onAuthStateChanged(user => {
       if (user) {
         console.log("✅ Logged in as:", user.email);
-        document.getElementById("status").innerText = "✅ Logged in as: " + user.email;
+        document.getElementById("status").textContent = "✅ Logged in as: " + user.email;
       } else {
-        console.log("❌ Not logged in.");
-        document.getElementById("status").innerText = "❌ Not logged in.";
+        console.log("❌ Not logged in");
+        document.getElementById("status").textContent = "❌ Not logged in";
       }
-    }, error => {
-      console.error("🔥 Auth state error:", error);
-      document.getElementById("status").innerText = "⚠️ Error: " + error.message;
+    }, err => {
+      console.error("🔥 Auth error:", err);
+      document.getElementById("status").textContent = "⚠️ Error: " + err.message;
     });
   </script>
 </body>
