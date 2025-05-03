@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Auth Test</title>
+</head>
+<body>
+  <h2>Firebase Auth Test Page</h2>
+  <p id="status">Checking Firebase...</p>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
+      authDomain: "nutritrack-12b26.firebaseapp.com",
+      projectId: "nutritrack-12b26",
+      storageBucket: "nutritrack-12b26.firebasestorage.app",
+      messagingSenderId: "1034235028376",
+      appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    document.getElementById("status").innerText = "Firebase initialized... checking login state";
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log("✅ Logged in as:", user.email);
+        document.getElementById("status").innerText = "✅ Logged in as: " + user.email;
+      } else {
+        console.log("❌ Not logged in.");
+        document.getElementById("status").innerText = "❌ Not logged in.";
+      }
+    }, error => {
+      console.error("🔥 Auth state error:", error);
+      document.getElementById("status").innerText = "⚠️ Error: " + error.message;
+    });
+  </script>
+</body>
+</html>
