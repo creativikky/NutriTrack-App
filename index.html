@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NutriTrack Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   NutriTrack Login
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&amp;display=swap" rel="stylesheet"/>
   <style>
-    body {
+   body {
       margin: 0;
       font-family: 'Nunito', sans-serif;
       display: flex;
@@ -63,12 +65,14 @@
       color: #444;
     }
   </style>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script>
-  const firebaseConfig = {
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js">
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js">
+  </script>
+  <script>
+   const firebaseConfig = {
     apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
     authDomain: "nutritrack-12b26.firebaseapp.com",
     projectId: "nutritrack-12b26",
@@ -79,45 +83,52 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-</script>
-
-
-<script>
-firebase.auth().onAuthStateChanged(user => {
+  </script>
+  <script>
+   firebase.auth().onAuthStateChanged(user => {
   if (!user) {
     showError("Not logged in. Redirecting to login...");
     setTimeout(() => location.href = "index.html", 2000);
     return;
   }
 });
-</script>
-
-</head>
-<body>
-
-<div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;"></div>
-<script>
-function showError(message) {
+  </script>
+ </head>
+ <body>
+  <div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;">
+  </div>
+  <script>
+   function showError(message) {
   const box = document.getElementById("errorBox");
   box.textContent = message;
   box.style.display = "block";
 }
-</script>
-
+  </script>
   <div class="login-container">
-    <h1>NutriTrack</h1>
-    <div class="brand">by CreativikkyLabs</div>
-    <input type="email" id="email" ="Email" />
-    <input type="password" id="password" ="Password" />
-    <button id="loginBtn">Login</button>
-    <button id="signupBtn">Sign Up</button>
-    <button id="googleBtn">Login with Google</button>
-    <div class="footer">Stay strong. Stay healthy. 🌱</div>
+   <h1>
+    NutriTrack
+   </h1>
+   <div class="brand">
+    by CreativikkyLabs
+   </div>
+   <input ="email"="" id="email" type="email"/>
+   <input ="password"="" id="password" type="password"/>
+   <button id="loginBtn">
+    Login
+   </button>
+   <button id="signupBtn">
+    Sign Up
+   </button>
+   <button id="googleBtn">
+    Login with Google
+   </button>
+   <div class="footer">
+    Stay strong. Stay healthy. 🌱
+   </div>
   </div>
-
   <!-- Firebase SDKs -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+   document.addEventListener('DOMContentLoaded', function () {
       const firebaseConfig = {
         apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
         authDomain: "nutritrack-12b26.firebaseapp.com",
@@ -153,5 +164,23 @@ function showError(message) {
       });
     });
   </script>
+ 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const auth = firebase.auth();
+
+    // Ensure session is persistent across reloads
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch(error => console.error("Persistence error:", error));
+
+    // If already logged in, redirect
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        location.href = 'dashboard.html';
+      }
+    });
+  });
+</script>
+
 </body>
 </html>
