@@ -105,7 +105,10 @@
     <div class="left">
       <h3>7-Day Calorie Chart</h3>
       <canvas id="calorieChart" height="180"></canvas>
-      <div id="proteinBadges"></div>
+      
+    <div style="margin-top:1rem;"><strong>Protein</strong></div>
+    <div id="proteinBadges" style="display: flex; justify-content: space-around; margin-top: 0.5rem;"></div>
+    
     </div>
     <div class="middle">
       <h3>Today</h3>
@@ -135,7 +138,7 @@
     <a class="btn" href="export_feed.html">📤 Export Feed</a>
 
     <div class="group-title">Ingredient Actions</div>
-    <a class="btn" href="add_item.html">➕ Add Ingredients</a>
+    <a class="btn" href="add_item.html">🧾 View/Edit Ingredients</a>
     <a class="btn" href="add_item.html">🧾 View/Edit Ingredients</a>
   </div>
 
@@ -191,7 +194,7 @@
     proteinValues.forEach(p => {
       const badge = document.createElement('div');
       badge.className = 'protein-badge';
-      badge.textContent = p + "g protein";
+      badge.textContent = p + "g";
       badgeContainer.appendChild(badge);
     });
   </script>
