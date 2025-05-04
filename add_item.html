@@ -69,8 +69,8 @@ function showError(message) {
     function createRow(id, data = {}) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><input type="text" value="${data.item || ""}" /></td>
-        <td><input type="number" step="0.01" value="${data.per_unit_qty || ""}" /></td>
+        <td class="view"> type="text" value="${data.item || ""}" /></td>
+        <td class="view"> type="number" step="0.01" value="${data.per_unit_qty || ""}" /></td>
         <td>
 <select>
   <option value="gm">gm</option>
@@ -81,8 +81,8 @@ function showError(message) {
   <option value="unitless">unitless</option>
 </select>
 </td>
-        <td><input type="number" step="0.01" value="${data.calories || ""}" /></td>
-        <td><input type="number" step="0.01" value="${data.protein || ""}" /></td>
+        <td class="view"> type="number" step="0.01" value="${data.calories || ""}" /></td>
+        <td class="view"> type="number" step="0.01" value="${data.protein || ""}" /></td>
         <td>
           <button class="save" onclick="saveIngredient(this, '${id || ""}')">Save</button>
           <button class="delete" onclick="deleteIngredient(this, '${id || ""}')">Delete</button>
@@ -174,3 +174,23 @@ function showError(message) {
 
 </body>
 </html>
+
+<script>
+function toggleEdit(row, editing) {
+  row.querySelectorAll('.display').forEach(el => el.style.display = editing ? 'none' : '');
+  row.querySelectorAll('.edit-input').forEach(el => el.style.display = editing ? '' : 'none');
+  row.querySelector('.edit').style.display = editing ? 'none' : '';
+  row.querySelector('.save').style.display = editing ? '' : 'none';
+  row.querySelector('.cancel').style.display = editing ? '' : 'none';
+}
+
+function editRow(btn) {
+  const row = btn.closest('tr');
+  toggleEdit(row, true);
+}
+
+function cancelEdit(btn) {
+  const row = btn.closest('tr');
+  toggleEdit(row, false);
+}
+</script>
