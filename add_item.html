@@ -191,6 +191,15 @@ function handleCSVUpload() {
   <input type="file" id="csvInput" accept=".csv" />
   <button class="btn btn-add" onclick="handleCSVUpload()">Upload CSV</button>
 
+
+<hr>
+<h3>Import / Export</h3>
+<div style="margin-top: 10px;">
+  <input type="file" id="csvInput" accept=".csv" />
+  <button class="btn btn-add" onclick="handleCSVUpload()">Import CSV</button>
+  <button class="btn" onclick="exportToCSV()">Export CSV</button>
+</div>
+
 <dialog id="ingredientDialog">
     <form method="dialog" onsubmit="saveIngredient(event)">
       <h3>Add Ingredient</h3>
