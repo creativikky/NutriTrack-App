@@ -93,21 +93,7 @@
       border-radius: 8px;
       cursor: pointer;
     }
-  
-.protein-label {
-  text-align: center;
-  font-style: italic;
-  margin: 0.5rem 0 0.2rem;
-  color: #666;
-}
-
-.protein-ovals {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-</style>
+  </style>
 </head>
 <body>
 
@@ -136,8 +122,8 @@ function showError(message) {
     </div>
     <div class="middle">
       <h3>Today</h3>
-      <p>Energy: <span id="energyToday">--</span> kcal </p>
-      <p>Protein: <span id="proteinToday">--</span> g </p>
+      <p>Energy: 1750 kcal <span style="color:green;">(+20%)</span></p>
+      <p>Protein: 60 g <span style="color:green;">(+15%)</span></p>
     </div>
     <div class="right">
       <h3>Today’s Feeds</h3>
@@ -146,7 +132,9 @@ function showError(message) {
           <tr><th>Feed #</th><th>Ingredients</th><th>Energy</th><th>Protein</th></tr>
         </thead>
         <tbody>
-          
+          <tr><td>1</td><td>Milk, Banana</td><td>300</td><td>10</td></tr>
+          <tr><td>2</td><td>Khichdi Puree</td><td>450</td><td>15</td></tr>
+          <tr><td>3</td><td>Ensure, Milk</td><td>500</td><td>20</td></tr>
         </tbody>
       </table>
     </div>
@@ -160,8 +148,9 @@ function showError(message) {
     <a class="btn" href="export_feed.html">📤 Export Feed</a>
 
     <div class="group-title">Ingredient Actions</div>
-    <a class="btn" href="add_item.html">🧾 Ingredients</a>
-</div>
+    <a class="btn" href="add_item.html">🧾 View/Edit Ingredients</a>
+    <a class="btn" href="add_item.html">🧾 View/Edit Ingredients</a>
+  </div>
 
   <button class="logout" onclick="logout()">Logout</button>
 
@@ -199,7 +188,7 @@ function showError(message) {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [{
           label: 'Calories (kcal)',
-          
+          data: [1500, 1600, 1700, 1550, 1800, 1750, 1650],
           backgroundColor: '#66bb6a'
         }]
       },
@@ -635,21 +624,10 @@ firebase.auth().onAuthStateChanged(user => {
 
       const proteinOvals = document.getElementById("proteinOvals");
       proteinOvals.innerHTML = "";
-      if (proteinData.length === 0) {
-        for (let i = 0; i < 7; i++) {
-          const div = document.createElement("div");
-          div.className = "protein-oval";
-          div.textContent = "-";
-          proteinOvals.appendChild(div);
-        }
-      } else {
-        proteinData.forEach(val => {
-          const div = document.createElement("div");
-          div.className = "protein-oval";
-          div.textContent = val ? `${val} g` : "-";
-          proteinOvals.appendChild(div);
-        });
-      } g` : "-";
+      proteinData.forEach(val => {
+        const div = document.createElement("div");
+        div.className = "protein-oval";
+        div.textContent = val ? `${val} g` : "-";
         proteinOvals.appendChild(div);
       });
     });
