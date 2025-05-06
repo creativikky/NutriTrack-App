@@ -134,12 +134,32 @@ function showError(message) {
     <div id="proteinBadges" style="display: flex; justify-content: space-around; margin-top: 0.5rem;"></div>
     
     </div>
-    <div class="middle">
-      <h3>Today</h3>
-      <p>Energy: <span id="energyToday">--</span> kcal </p>
-      <p>Protein: <span id="proteinToday">--</span> g </p>
+    
+<div class="middle">
+  <h3 style="text-align:center; color:#2e7d32;">Today's Progress</h3>
+  <div id="calorieProgressContainer" style="margin-top:1rem;">
+    <div style="font-weight:bold;">Calories</div>
+    <div style="background:#e0e0e0; border-radius:20px; overflow:hidden; height:20px;">
+      <div id="calorieProgressBar" style="height:100%; width:0%; background:#66bb6a;"></div>
     </div>
-    <div class="right">
+    <div style="font-size:0.9rem; margin-top:0.2rem;">
+      <span id="calorieProgressText">0 / 2000 kcal</span>
+      <span id="calorieChange" style="float:right; font-weight:bold;"></span>
+    </div>
+  </div>
+
+  <div id="proteinProgressContainer" style="margin-top:2rem;">
+    <div style="font-weight:bold;">Protein</div>
+    <div style="background:#e0e0e0; border-radius:20px; overflow:hidden; height:20px;">
+      <div id="proteinProgressBar" style="height:100%; width:0%; background:#42a5f5;"></div>
+    </div>
+    <div style="font-size:0.9rem; margin-top:0.2rem;">
+      <span id="proteinProgressText">0g / 65g</span>
+      <span id="proteinChange" style="float:right; font-weight:bold;"></span>
+    </div>
+  </div>
+</div>
+<div class="right">
       <h3>Today’s Feeds</h3>
       <table>
         <thead>
