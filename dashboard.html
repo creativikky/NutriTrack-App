@@ -110,10 +110,6 @@
 </style>
 </head>
 <body>
-<a class="btn" href="view_today.html">📅 View Today's Feeds</a>
-
-<a class="btn" href="add_feed.html">➕ Add Feed</a>
-
 
 <div id="errorBox" style="display:none; color: red; text-align: center; margin-top: 1rem;"></div>
 <script>
@@ -138,32 +134,12 @@ function showError(message) {
     <div id="proteinBadges" style="display: flex; justify-content: space-around; margin-top: 0.5rem;"></div>
     
     </div>
-    
-<div class="middle">
-  <h3 style="text-align:center; color:#2e7d32;">Today's Progress</h3>
-  <div id="calorieProgressContainer" style="margin-top:1rem;">
-    <div style="font-weight:bold;">Calories</div>
-    <div style="background:#e0e0e0; border-radius:20px; overflow:hidden; height:20px;">
-      <div id="calorieProgressBar" style="height:100%; width:0%; background:#66bb6a;"></div>
+    <div class="middle">
+      <h3>Today</h3>
+      <p>Energy: <span id="energyToday">--</span> kcal </p>
+      <p>Protein: <span id="proteinToday">--</span> g </p>
     </div>
-    <div style="font-size:0.9rem; margin-top:0.2rem;">
-      <span id="calorieProgressText">0 / 2000 kcal</span>
-      <span id="calorieChange" style="float:right; font-weight:bold;"></span>
-    </div>
-  </div>
-
-  <div id="proteinProgressContainer" style="margin-top:2rem;">
-    <div style="font-weight:bold;">Protein</div>
-    <div style="background:#e0e0e0; border-radius:20px; overflow:hidden; height:20px;">
-      <div id="proteinProgressBar" style="height:100%; width:0%; background:#42a5f5;"></div>
-    </div>
-    <div style="font-size:0.9rem; margin-top:0.2rem;">
-      <span id="proteinProgressText">0g / 65g</span>
-      <span id="proteinChange" style="float:right; font-weight:bold;"></span>
-    </div>
-  </div>
-</div>
-<div class="right">
+    <div class="right">
       <h3>Today’s Feeds</h3>
       <table>
         <thead>
@@ -178,6 +154,11 @@ function showError(message) {
 
   <div class="buttons">
     <div class="group-title">Feed Actions</div>
+    <a class="btn" href="add_feed.html">➕ Add Feed</a>
+    <a class="btn" href="view_today.html">📅 View Today’s Feed</a>
+    <a class="btn" href="view_date.html">🔍 View by Date</a>
+    <a class="btn" href="export_feed.html">📤 Export Feed</a>
+
     <div class="group-title">Ingredient Actions</div>
     <a class="btn" href="add_item.html">🧾 Ingredients</a>
 </div>
@@ -676,124 +657,5 @@ firebase.auth().onAuthStateChanged(user => {
 });
 </script>
 
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsSdKm43H4dyjKGHtTN6ahwH6RwVcSdYo",
-    authDomain: "nutritrack-12b26.firebaseapp.com",
-    projectId: "nutritrack-12b26",
-    storageBucket: "nutritrack-12b26.appspot.com",
-    messagingSenderId: "1034235028376",
-    appId: "1:1034235028376:web:ce52c8ca6d1e6a993141ed"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-
-  auth.onAuthStateChanged(user => {
-    if (!user) return location.href = "index.html";
-
-    const uid = user.uid;
-
-    db.collection("feeds")
-      .where("uid", "==", uid)
-      .onSnapshot(snapshot => {
-        const feeds = snapshot.docs.map(doc => doc.data());
-        console.log("Feeds received:", feeds);
-        const todayFeeds = feeds.filter(f => f.date === today);
-        const yesterdayFeeds = feeds.filter(f => f.date === yesterday);
-        console.log("Today’s feeds:", todayFeeds);
-        console.log("Yesterday’s feeds:", yesterdayFeeds);
-
-        // Summary data
-        const todayFeeds = feeds.filter(f => f.date === today);
-        const yesterdayFeeds = feeds.filter(f => f.date === yesterday);
-        let totalCal = 0, totalPro = 0, yCal = 0, yPro = 0;
-
-        todayFeeds.forEach(f => {
-          totalCal += +f.calories || 0;
-          totalPro += +f.protein || 0;
-        });
-
-        yesterdayFeeds.forEach(f => {
-          yCal += +f.calories || 0;
-          yPro += +f.protein || 0;
-        });
-
-        // Update middle column
-        const kcalGoal = 2000, proteinGoal = 65;
-        document.getElementById("calorieProgressBar").style.width = (totalCal / kcalGoal * 100) + "%";
-        document.getElementById("proteinProgressBar").style.width = (totalPro / proteinGoal * 100) + "%";
-        document.getElementById("calorieProgressText").textContent = `${totalCal} / ${kcalGoal} kcal`;
-        document.getElementById("proteinProgressText").textContent = `${totalPro}g / ${proteinGoal}g`;
-
-        if (yCal) {
-          const delta = ((totalCal - yCal) / yCal * 100).toFixed(1);
-          document.getElementById("calorieChange").textContent = `${delta >= 0 ? "+" : ""}${delta}% vs yesterday`;
-          document.getElementById("calorieChange").style.color = delta >= 0 ? "green" : "red";
-        } else {
-          document.getElementById("calorieChange").textContent = "No data for yesterday";
-          document.getElementById("calorieChange").style.color = "#999";
-        }
-
-        if (yPro) {
-          const delta = ((totalPro - yPro) / yPro * 100).toFixed(1);
-          document.getElementById("proteinChange").textContent = `${delta >= 0 ? "+" : ""}${delta}% vs yesterday`;
-          document.getElementById("proteinChange").style.color = delta >= 0 ? "green" : "red";
-        } else {
-          document.getElementById("proteinChange").textContent = "No data for yesterday";
-          document.getElementById("proteinChange").style.color = "#999";
-        }
-
-        // Update right column feed summary
-        const rightCol = document.querySelector(".right");
-        let html = `<h3>Today’s Feed Summary</h3><table><thead><tr><th>Feed #</th><th>Item</th><th>Calories</th><th>Protein</th></tr></thead><tbody>`;
-        todayFeeds.forEach(f => {
-          html += `<tr><td>${f.feed_number}</td><td>${f.item}</td><td>${f.calories}</td><td>${f.protein}</td></tr>`;
-        });
-        html += `</tbody></table>`;
-        rightCol.innerHTML = html;
-
-        // Update left column chart (last 7 days)
-        const days = {};
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date(Date.now() - i * 86400000).toISOString().split("T")[0];
-          days[d] = { calories: 0, protein: 0 };
-        }
-
-        feeds.forEach(f => {
-          if (f.date in days) {
-            days[f.date].calories += +f.calories || 0;
-            days[f.date].protein += +f.protein || 0;
-          }
-        });
-
-        const labels = Object.keys(days);
-        const calData = labels.map(d => days[d].calories);
-        const proData = labels.map(d => days[d].protein);
-
-        const ctx = document.getElementById("calorieChart").getContext("2d");
-        if (window.chart) window.chart.destroy();
-        window.chart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels,
-            datasets: [
-              { label: "Calories", data: calData, backgroundColor: "#66bb6a" },
-              { label: "Protein", data: proData, backgroundColor: "#42a5f5" }
-            ]
-          },
-          options: {
-            responsive: true,
-            scales: { y: { beginAtZero: true } }
-          }
-        });
-      });
-  });
-</script>
 </body>
-
 </html>

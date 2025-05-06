@@ -32,7 +32,11 @@ https://yourusername.github.io/nutritrack/
 |--------------------|----------------------------------------|
 | `index.html`       | Main dashboard (auth protected)        |
 | `login.html`       | Login/signup form                      |
+| `add_feed.html`    | Form to add new feed entries           |
+| `view_today.html`  | View today's feed                      |
+| `view_date.html`   | View feeds for any selected date       |
 | `add_item.html`    | Add/edit ingredients                   |
+| `export_feed.html` | Download feed data as CSV              |
 | `firebase.js`      | Firebase setup & initialization        |
 
 ---
