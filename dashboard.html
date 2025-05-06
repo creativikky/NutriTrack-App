@@ -703,6 +703,11 @@ firebase.auth().onAuthStateChanged(user => {
       .where("uid", "==", uid)
       .onSnapshot(snapshot => {
         const feeds = snapshot.docs.map(doc => doc.data());
+        console.log("Feeds received:", feeds);
+        const todayFeeds = feeds.filter(f => f.date === today);
+        const yesterdayFeeds = feeds.filter(f => f.date === yesterday);
+        console.log("Today’s feeds:", todayFeeds);
+        console.log("Yesterday’s feeds:", yesterdayFeeds);
 
         // Summary data
         const todayFeeds = feeds.filter(f => f.date === today);
