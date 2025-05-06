@@ -134,32 +134,12 @@ function showError(message) {
     <div id="proteinBadges" style="display: flex; justify-content: space-around; margin-top: 0.5rem;"></div>
     
     </div>
-    
-<div class="middle">
-  <h3 style="text-align:center; color:#2e7d32;">Today's Progress</h3>
-  <div id="calorieProgressContainer" style="margin-top:1rem;">
-    <div style="font-weight:bold;">Calories</div>
-    <div style="background:#e0e0e0; border-radius:20px; overflow:hidden; height:20px;">
-      <div id="calorieProgressBar" style="height:100%; width:0%; background:#66bb6a;"></div>
+    <div class="middle">
+      <h3>Today</h3>
+      <p>Energy: <span id="energyToday">--</span> kcal </p>
+      <p>Protein: <span id="proteinToday">--</span> g </p>
     </div>
-    <div style="font-size:0.9rem; margin-top:0.2rem;">
-      <span id="calorieProgressText">0 / 2000 kcal</span>
-      <span id="calorieChange" style="float:right; font-weight:bold;"></span>
-    </div>
-  </div>
-
-  <div id="proteinProgressContainer" style="margin-top:2rem;">
-    <div style="font-weight:bold;">Protein</div>
-    <div style="background:#e0e0e0; border-radius:20px; overflow:hidden; height:20px;">
-      <div id="proteinProgressBar" style="height:100%; width:0%; background:#42a5f5;"></div>
-    </div>
-    <div style="font-size:0.9rem; margin-top:0.2rem;">
-      <span id="proteinProgressText">0g / 65g</span>
-      <span id="proteinChange" style="float:right; font-weight:bold;"></span>
-    </div>
-  </div>
-</div>
-<div class="right">
+    <div class="right">
       <h3>Today’s Feeds</h3>
       <table>
         <thead>
@@ -675,83 +655,6 @@ firebase.auth().onAuthStateChanged(user => {
     });
   });
 });
-</script>
-
-
-<script>
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-  const today = new Date().toISOString().split("T")[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-
-  function updateProgressBars(todayData, yesterdayData, goals) {
-    const energy = todayData.energy || 0;
-    const protein = todayData.protein || 0;
-    const goalEnergy = goals.energy || 2000;
-    const goalProtein = goals.protein || 65;
-
-    const energyPct = Math.min((energy / goalEnergy) * 100, 100);
-    const proteinPct = Math.min((protein / goalProtein) * 100, 100);
-
-    document.getElementById("calorieProgressBar").style.width = energyPct + "%";
-    document.getElementById("proteinProgressBar").style.width = proteinPct + "%";
-
-    document.getElementById("calorieProgressText").textContent = energy + " / " + goalEnergy + " kcal";
-    document.getElementById("proteinProgressText").textContent = protein + "g / " + goalProtein + "g";
-
-    // Calculate changes vs yesterday
-    if (yesterdayData.energy != null) {
-      const deltaEnergy = ((energy - yesterdayData.energy) / yesterdayData.energy) * 100;
-      document.getElementById("calorieChange").textContent =
-        (deltaEnergy >= 0 ? "+" : "") + deltaEnergy.toFixed(1) + "% vs yesterday";
-      document.getElementById("calorieChange").style.color = deltaEnergy >= 0 ? "green" : "red";
-    } else {
-      document.getElementById("calorieChange").textContent = "No data for yesterday";
-      document.getElementById("calorieChange").style.color = "#999";
-    }
-
-    if (yesterdayData.protein != null) {
-      const deltaProtein = ((protein - yesterdayData.protein) / yesterdayData.protein) * 100;
-      document.getElementById("proteinChange").textContent =
-        (deltaProtein >= 0 ? "+" : "") + deltaProtein.toFixed(1) + "% vs yesterday";
-      document.getElementById("proteinChange").style.color = deltaProtein >= 0 ? "green" : "red";
-    } else {
-      document.getElementById("proteinChange").textContent = "No data for yesterday";
-      document.getElementById("proteinChange").style.color = "#999";
-    }
-  }
-
-  auth.onAuthStateChanged(user => {
-    if (!user) return;
-
-    Promise.all([
-      db.collection("feeds").where("uid", "==", user.uid).where("date", "==", today).get(),
-      db.collection("feeds").where("uid", "==", user.uid).where("date", "==", yesterday).get(),
-      db.collection("goals").doc(user.uid).get()
-    ]).then(([todaySnap, yestSnap, goalsDoc]) => {
-      const todayData = { energy: 0, protein: 0 };
-      const yesterdayData = { energy: null, protein: null };
-
-      todaySnap.forEach(doc => {
-        const d = doc.data();
-        todayData.energy += +d.calories || 0;
-        todayData.protein += +d.protein || 0;
-      });
-
-      if (!yestSnap.empty) {
-        yesterdayData.energy = 0;
-        yesterdayData.protein = 0;
-        yestSnap.forEach(doc => {
-          const d = doc.data();
-          yesterdayData.energy += +d.calories || 0;
-          yesterdayData.protein += +d.protein || 0;
-        });
-      }
-
-      const goals = goalsDoc.exists ? goalsDoc.data() : { energy: 2000, protein: 65 };
-      updateProgressBars(todayData, yesterdayData, goals);
-    });
-  });
 </script>
 
 </body>
